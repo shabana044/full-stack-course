@@ -13,20 +13,24 @@ const App = () => {
   ]
 
   const [selected, setSelected] = useState(0)
-
-  // votes array initialized with zeros for each anecdote
   const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
 
+  // Pick a new random anecdote
   const handleNext = () => {
     const randomIndex = Math.floor(Math.random() * anecdotes.length)
     setSelected(randomIndex)
   }
 
+  // Vote for the current anecdote
   const handleVote = () => {
-    const copy = [...votes]   // create a copy
-    copy[selected] += 1       // update vote count for current anecdote
-    setVotes(copy)            // update state
+    const copy = [...votes]
+    copy[selected] += 1
+    setVotes(copy)
   }
+
+  // Find index of anecdote with most votes
+  const maxVotes = Math.max(...votes)
+  const maxIndex = votes.indexOf(maxVotes)
 
   return (
     <div>
@@ -37,6 +41,11 @@ const App = () => {
 
       <button onClick={handleVote}>vote</button>
       <button onClick={handleNext}>next anecdote</button>
+
+      <h1>Anecdote with most votes</h1>
+
+      <p>{anecdotes[maxIndex]}</p>
+      <p>has {votes[maxIndex]} votes</p>
     </div>
   )
 }

@@ -1,5 +1,10 @@
 import { useState } from 'react'
 
+// Button component
+const Button = ({ handleClick, text }) => {
+  return <button onClick={handleClick}>{text}</button>
+}
+
 // Single statistic line
 const Statistic = ({ text, value }) => {
   return (
@@ -10,10 +15,11 @@ const Statistic = ({ text, value }) => {
   )
 }
 
-// Statistics component (all statistics)
+// Statistics component
 const Statistics = ({ good, neutral, bad }) => {
   const total = good + neutral + bad
 
+  // Show message if no feedback yet
   if (total === 0) {
     return <p>No feedback given</p>
   }
@@ -45,9 +51,9 @@ const App = () => {
     <div>
       <h1>Give feedback</h1>
 
-      <button onClick={() => setGood(good + 1)}>Good</button>
-      <button onClick={() => setNeutral(neutral + 1)}>Neutral</button>
-      <button onClick={() => setBad(bad + 1)}>Bad</button>
+      <Button handleClick={() => setGood(good + 1)} text="Good" />
+      <Button handleClick={() => setNeutral(neutral + 1)} text="Neutral" />
+      <Button handleClick={() => setBad(bad + 1)} text="Bad" />
 
       <h2>Statistics</h2>
       <Statistics good={good} neutral={neutral} bad={bad} />

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-// Statistics component (renders a single statistic line)
+// Single statistic line
 const Statistic = ({ text, value }) => {
   return (
     <tr>
@@ -10,9 +10,10 @@ const Statistic = ({ text, value }) => {
   )
 }
 
-// Statistics component (renders all statistics)
+// Statistics component (all statistics)
 const Statistics = ({ good, neutral, bad }) => {
   const total = good + neutral + bad
+
   if (total === 0) {
     return <p>No feedback given</p>
   }

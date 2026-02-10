@@ -6,52 +6,58 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
 
-  // Fetch persons from backend
+  // 1. Fetch all persons from JSON Server
   useEffect(() => {
     personService
       .getAll()
       .then(initialPersons => setPersons(initialPersons));
   }, []);
 
-  // Add or update a person
+  // 2. Add or update person
   const addPerson = (event) => {
     event.preventDefault();
 
     const existing = persons.find(p => p.name === newName);
 
     if (existing) {
-      if (window.confirm(`${newName} is already added. Replace the number?`)) {
-        const updated = { ...existing, number: newNumber };
+      if (window.confirm(`${newName} is already added to phonebook. Replace the old number?`)) {
+        const updatedPerson = { ...existing, number: newNumber };
 
         personService
-          .update(existing.id, updated)
-          .then(returned => {
-            setPersons(persons.map(p => p.id !== existing.id ? p : returned));
+          .update(existing.id, updatedPerson)
+          .then(returnedPerson => {
+            setPersons(persons.map(p => p.id !== existing.id ? p : returnedPerson));
             setNewName('');
             setNewNumber('');
           });
-
-        return;
       }
-    } else {
-      const newPerson = { name: newName, number: newNumber };
-
-      personService
-        .create(newPerson)
-        .then(returned => {
-          setPersons(persons.concat(returned));
-          setNewName('');
-          setNewNumber('');
-        });
+      return;
     }
+
+    const newPerson = {
+      name: newName,
+      number: newNumber
+    };
+
+    personService
+      .create(newPerson)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson));
+        setNewName('');
+        setNewNumber('');
+      });
   };
 
-  // Delete a person
+  // 3. DELETE feature (2.14)
   const handleDelete = (id, name) => {
-    if (window.confirm(`Delete ${name}?`)) {
-      personService.remove(id).then(() => {
-        setPersons(persons.filter(p => p.id !== id));
-      });
+    const confirmDelete = window.confirm(`Delete ${name}?`);
+
+    if (confirmDelete) {
+      personService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== id));
+        });
     }
   };
 
@@ -80,6 +86,7 @@ const App = () => {
       </form>
 
       <h2>Numbers</h2>
+
       {persons.map(person => (
         <p key={person.id}>
           {person.name} {person.number}
@@ -88,12 +95,11 @@ const App = () => {
           </button>
         </p>
       ))}
+
     </div>
   );
 };
 
 export default App;
-
-
 
 

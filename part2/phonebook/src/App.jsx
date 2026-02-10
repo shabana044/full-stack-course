@@ -2,17 +2,16 @@ import { useState } from 'react'
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas' }
-  ]) 
-
+    { name: 'Arto Hellas', number: '040-123456' }
+  ])
   const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
 
-  const handleSubmit = (event) => {
+  const addPerson = (event) => {
     event.preventDefault()
 
-    // Check if name already exists
     const nameExists = persons.some(
-      person => person.name === newName
+      (person) => person.name === newName
     )
 
     if (nameExists) {
@@ -20,26 +19,33 @@ const App = () => {
       return
     }
 
-    const newPerson = { name: newName }
-    setPersons(persons.concat(newPerson))
+    const personObject = {
+      name: newName,
+      number: newNumber
+    }
+
+    setPersons(persons.concat(personObject))
     setNewName('')
+    setNewNumber('')
   }
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
   }
 
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
-
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={addPerson}>
         <div>
-          name: 
-          <input
-            value={newName}
-            onChange={handleNameChange}
-          />
+          name: <input value={newName} onChange={handleNameChange} />
+        </div>
+        <div>
+          number: <input value={newNumber} onChange={handleNumberChange} />
         </div>
         <div>
           <button type="submit">add</button>
@@ -47,9 +53,11 @@ const App = () => {
       </form>
 
       <h2>Numbers</h2>
-      {persons.map(person => 
-        <p key={person.name}>{person.name}</p>
-      )}
+      <ul>
+        {persons.map((person, i) => (
+          <li key={i}>{person.name} {person.number}</li>
+        ))}
+      </ul>
     </div>
   )
 }

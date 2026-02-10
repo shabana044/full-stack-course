@@ -21,7 +21,11 @@ const Content = ({ parts }) => {
 }
 
 const Course = ({ course }) => {
-  const total = course.parts.reduce((sum, part) => sum + part.exercises, 0)
+  // verbose reduce for debugging/learning:
+  const total = course.parts.reduce((sum, part) => {
+    console.log('reducing:', sum, part.exercises) // optional
+    return sum + part.exercises
+  }, 0)
 
   return (
     <div>

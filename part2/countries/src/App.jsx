@@ -4,6 +4,7 @@ import countriesService from "./services/countries"
 const App = () => {
   const [countries, setCountries] = useState([])
   const [filter, setFilter] = useState("")
+  const [selected, setSelected] = useState(null)
 
   useEffect(() => {
     countriesService.getAll().then(data => {
@@ -21,7 +22,10 @@ const App = () => {
 
       <input
         value={filter}
-        onChange={(e) => setFilter(e.target.value)}
+        onChange={(e) => {
+          setFilter(e.target.value)
+          setSelected(null)  // reset when typing
+        }}
       />
 
       {filter && filtered.length > 10 && (
@@ -31,13 +35,20 @@ const App = () => {
       {filtered.length > 1 && filtered.length <= 10 && (
         <ul>
           {filtered.map(c => (
-            <li key={c.name.common}>{c.name.common}</li>
+            <li key={c.name.common}>
+              {c.name.common}
+              <button onClick={() => setSelected(c)}>show</button>
+            </li>
           ))}
         </ul>
       )}
 
       {filtered.length === 1 && (
         <CountryDetail country={filtered[0]} />
+      )}
+
+      {selected && (
+        <CountryDetail country={selected} />
       )}
     </div>
   )
@@ -52,16 +63,15 @@ const CountryDetail = ({ country }) => {
 
       <h3>Languages</h3>
       <ul>
-        {Object.values(country.languages).map(lang => (
+        {Object.values(country.languages || {}).map(lang => (
           <li key={lang}>{lang}</li>
         ))}
       </ul>
 
-      <img
+      <img 
         src={country.flags.png}
         alt="flag"
         width="150"
-        style={{ border: "1px solid black" }}
       />
     </div>
   )

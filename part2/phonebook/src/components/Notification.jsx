@@ -1,21 +1,17 @@
 const Notification = ({ message }) => {
-  if (message === null) return null;
+  if (message === null) return null
 
   const style = {
-    color: "green",
-    background: "#d3f8d3",
-    padding: "10px",
-    border: "2px solid green",
+    color: message.type === "error" ? "red" : "green",
+    background: "#f2f2f2",
+    fontSize: "20px",
+    border: `3px solid ${message.type === "error" ? "red" : "green"}`,
     borderRadius: "5px",
-    marginBottom: "15px",
-    fontSize: "18px",
-  };
+    padding: "10px",
+    marginBottom: "15px"
+  }
 
-  return (
-    <div style={style}>
-      {message}
-    </div>
-  );
-};
+  return <div style={style}>{message.text}</div>
+}
 
-export default Notification;
+export default Notification

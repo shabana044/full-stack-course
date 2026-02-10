@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import Filter from './components/Filter'
-import PersonForm from './components/PersonForm'
-import Persons from './components/Persons'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  const [filter, setFilter] = useState('')
 
   useEffect(() => {
     axios
@@ -21,41 +17,49 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
 
-    if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
-      return
+    const newPerson = {
+      name: newName,
+      number: newNumber
     }
 
-    const newPerson = { name: newName, number: newNumber }
-    setPersons(persons.concat(newPerson))
-    setNewName('')
-    setNewNumber('')
+    axios
+      .post('http://localhost:3001/persons', newPerson)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+        setNewName('')
+        setNewNumber('')
+      })
   }
-
-  const personsToShow = persons.filter(person =>
-    person.name.toLowerCase().includes(filter.toLowerCase())
-  )
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <Filter value={filter} onChange={e => setFilter(e.target.value)} />
 
-      <h3>Add a new</h3>
-      <PersonForm 
-        onSubmit={addPerson}
-        newName={newName}
-        newNumber={newNumber}
-        handleNameChange={e => setNewName(e.target.value)}
-        handleNumberChange={e => setNewNumber(e.target.value)}
-      />
+      <form onSubmit={addPerson}>
+        <div>
+          name: 
+          <input value={newName} onChange={(e) => setNewName(e.target.value)} />
+        </div>
 
-      <h3>Numbers</h3>
-      <Persons persons={personsToShow} />
+        <div>
+          number: 
+          <input value={newNumber} onChange={(e) => setNewNumber(e.target.value)} />
+        </div>
+
+        <button type="submit">add</button>
+      </form>
+
+      <h2>Numbers</h2>
+      {persons.map(person => (
+        <p key={person.id}>
+          {person.name} {person.number}
+        </p>
+      ))}
     </div>
   )
 }
 
 export default App
+
 
 

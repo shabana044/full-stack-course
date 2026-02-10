@@ -8,12 +8,21 @@ const App = () => {
   const [newName, setNewName] = useState('')
 
   const handleSubmit = (event) => {
-    event.preventDefault()        // prevent page refresh
+    event.preventDefault()
+
+    // Check if name already exists
+    const nameExists = persons.some(
+      person => person.name === newName
+    )
+
+    if (nameExists) {
+      alert(`${newName} is already added to phonebook`)
+      return
+    }
 
     const newPerson = { name: newName }
-
-    setPersons(persons.concat(newPerson)) // add name to list
-    setNewName('') // clear input box
+    setPersons(persons.concat(newPerson))
+    setNewName('')
   }
 
   const handleNameChange = (event) => {
@@ -27,9 +36,9 @@ const App = () => {
       <form onSubmit={handleSubmit}>
         <div>
           name: 
-          <input 
-            value={newName} 
-            onChange={handleNameChange} 
+          <input
+            value={newName}
+            onChange={handleNameChange}
           />
         </div>
         <div>
@@ -37,11 +46,7 @@ const App = () => {
         </div>
       </form>
 
-      {/* Debug line (optional) */}
-      {/* <div>debug: {newName}</div> */}
-
       <h2>Numbers</h2>
-
       {persons.map(person => 
         <p key={person.name}>{person.name}</p>
       )}

@@ -1,69 +1,85 @@
-import { useState, useEffect } from 'react';
-import personService from './services/persons';
+import { useState, useEffect } from 'react'
+import personService from './services/persons'
+import Notification from './components/Notification'
 
 const App = () => {
-  const [persons, setPersons] = useState([]);
-  const [newName, setNewName] = useState('');
-  const [newNumber, setNewNumber] = useState('');
+  const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [notification, setNotification] = useState(null)
 
-  // 1. Fetch all persons from JSON Server
+  // Fetch all persons
   useEffect(() => {
     personService
       .getAll()
-      .then(initialPersons => setPersons(initialPersons));
-  }, []);
+      .then(initialPersons => setPersons(initialPersons))
+  }, [])
 
-  // 2. Add or update person
+  // Add or update person
   const addPerson = (event) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const existing = persons.find(p => p.name === newName);
+    const existing = persons.find(p => p.name === newName)
 
+    // If person already exists → update number
     if (existing) {
-      if (window.confirm(`${newName} is already added to phonebook. Replace the old number?`)) {
-        const updatedPerson = { ...existing, number: newNumber };
+      if (window.confirm(
+        `${newName} is already added to phonebook. Replace the old number?`
+      )) {
+
+        const updatedPerson = { ...existing, number: newNumber }
 
         personService
           .update(existing.id, updatedPerson)
           .then(returnedPerson => {
-            setPersons(persons.map(p => p.id !== existing.id ? p : returnedPerson));
-            setNewName('');
-            setNewNumber('');
-          });
+            setPersons(
+              persons.map(p => p.id !== existing.id ? p : returnedPerson)
+            )
+
+            setNotification(`Updated number for ${updatedPerson.name}`)
+            setTimeout(() => setNotification(null), 3000)
+
+            setNewName('')
+            setNewNumber('')
+          })
+
       }
-      return;
+      return
     }
 
-    const newPerson = {
-      name: newName,
-      number: newNumber
-    };
+    // Otherwise add new person
+    const newPerson = { name: newName, number: newNumber }
 
     personService
       .create(newPerson)
       .then(returnedPerson => {
-        setPersons(persons.concat(returnedPerson));
-        setNewName('');
-        setNewNumber('');
-      });
-  };
+        setPersons(persons.concat(returnedPerson))
 
-  // 3. DELETE feature (2.14)
+        setNotification(`Added ${newPerson.name}`)
+        setTimeout(() => setNotification(null), 3000)
+
+        setNewName('')
+        setNewNumber('')
+      })
+  }
+
+  // Delete person
   const handleDelete = (id, name) => {
-    const confirmDelete = window.confirm(`Delete ${name}?`);
-
-    if (confirmDelete) {
+    if (window.confirm(`Delete ${name}?`)) {
       personService
         .remove(id)
         .then(() => {
-          setPersons(persons.filter(p => p.id !== id));
-        });
+          setPersons(persons.filter(p => p.id !== id))
+        })
     }
-  };
+  }
 
   return (
     <div>
       <h2>Phonebook</h2>
+
+      {/* Success Message */}
+      <Notification message={notification} />
 
       <form onSubmit={addPerson}>
         <div>
@@ -95,11 +111,8 @@ const App = () => {
           </button>
         </p>
       ))}
-
     </div>
-  );
-};
+  )
+}
 
-export default App;
-
-
+export default App

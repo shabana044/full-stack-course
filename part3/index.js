@@ -13,18 +13,6 @@ app.get('/api/persons', (req, res) => {
     res.json(persons);
 });
 
-// ⭐ 3.3 — Get a single person by id
-app.get('/api/persons/:id', (req, res) => {
-    const id = req.params.id;
-    const person = persons.find(p => p.id === id);
-
-    if (person) {
-        res.json(person);
-    } else {
-        res.status(404).json({ error: "Person not found" });
-    }
-});
-
 // 3.2 — Info page
 app.get('/info', (req, res) => {
     const count = persons.length;
@@ -34,6 +22,31 @@ app.get('/info', (req, res) => {
         <p>Phonebook has info for ${count} people</p>
         <p>${date}</p>
     `);
+});
+
+// 3.3 — Get a single person
+app.get('/api/persons/:id', (req, res) => {
+    const id = req.params.id;
+    const person = persons.find(p => p.id === id);
+
+    if (!person) {
+        return res.status(404).json({ error: 'Person not found' });
+    }
+
+    res.json(person);
+});
+
+// 3.4 — Delete a person
+app.delete('/api/persons/:id', (req, res) => {
+    const id = req.params.id;
+    const index = persons.findIndex(person => person.id === id);
+
+    if (index === -1) {
+        return res.status(404).json({ error: 'Person not found' });
+    }
+
+    persons.splice(index, 1);
+    res.status(204).end();
 });
 
 const PORT = 3001;

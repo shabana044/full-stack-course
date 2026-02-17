@@ -7,12 +7,14 @@ const App = () => {
   const [filter, setFilter] = useState("")
   const [selected, setSelected] = useState(null)
 
+  // Fetch all countries
   useEffect(() => {
     countriesService.getAll().then(data => {
       setCountries(data)
     })
   }, [])
 
+  // Filtered list
   const filtered = countries.filter(country =>
     country.name.common.toLowerCase().includes(filter.toLowerCase())
   )
@@ -25,7 +27,7 @@ const App = () => {
         value={filter}
         onChange={(e) => {
           setFilter(e.target.value)
-          setSelected(null)
+          setSelected(null) // Reset selected when typing
         }}
       />
 
@@ -55,12 +57,20 @@ const App = () => {
   )
 }
 
+// ------------------------
+// COUNTRY DETAIL COMPONENT
+// ------------------------
+
 const CountryDetail = ({ country }) => {
   const [weather, setWeather] = useState(null)
-  const api_key = import.meta.env.VITE_WEATHER_KEY
-  const capital = country.capital[0]
 
+  const api_key = import.meta.env.VITE_WEATHER_KEY
+  const capital = country.capital?.[0] || "Unknown"
+
+  // Fetch weather when country changes
   useEffect(() => {
+    if (!capital || !api_key) return
+
     axios
       .get(
         `https://api.openweathermap.org/data/2.5/weather?q=${capital}&units=metric&appid=${api_key}`
@@ -68,12 +78,16 @@ const CountryDetail = ({ country }) => {
       .then((response) => {
         setWeather(response.data)
       })
+      .catch(() => {
+        console.error("Weather fetch failed")
+      })
   }, [capital, api_key])
 
   return (
     <div>
       <h2>{country.name.common}</h2>
-      <p><b>Capital:</b> {country.capital}</p>
+
+      <p><b>Capital:</b> {capital}</p>
       <p><b>Area:</b> {country.area}</p>
 
       <h3>Languages</h3>
@@ -96,10 +110,12 @@ const CountryDetail = ({ country }) => {
       {weather && (
         <div>
           <p><b>Temperature:</b> {weather.main.temp} °C</p>
+
           <img
-            src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+            src={`https://openweathermap.org/img/wn/${weather.weather?.[0]?.icon}@2x.png`}
             alt="weather icon"
           />
+
           <p><b>Wind:</b> {weather.wind.speed} m/s</p>
         </div>
       )}

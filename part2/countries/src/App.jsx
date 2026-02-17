@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import countriesService from "./services/countries"
+import axios from "axios"
 
 const App = () => {
   const [countries, setCountries] = useState([])
@@ -24,7 +25,7 @@ const App = () => {
         value={filter}
         onChange={(e) => {
           setFilter(e.target.value)
-          setSelected(null)  // reset when typing
+          setSelected(null)
         }}
       />
 
@@ -55,6 +56,20 @@ const App = () => {
 }
 
 const CountryDetail = ({ country }) => {
+  const [weather, setWeather] = useState(null)
+  const api_key = import.meta.env.VITE_WEATHER_KEY
+  const capital = country.capital[0]
+
+  useEffect(() => {
+    axios
+      .get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${capital}&units=metric&appid=${api_key}`
+      )
+      .then((response) => {
+        setWeather(response.data)
+      })
+  }, [capital, api_key])
+
   return (
     <div>
       <h2>{country.name.common}</h2>
@@ -73,6 +88,21 @@ const CountryDetail = ({ country }) => {
         alt="flag"
         width="150"
       />
+
+      <h3>Weather in {capital}</h3>
+
+      {!weather && <p>Loading weather...</p>}
+
+      {weather && (
+        <div>
+          <p><b>Temperature:</b> {weather.main.temp} °C</p>
+          <img
+            src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+            alt="weather icon"
+          />
+          <p><b>Wind:</b> {weather.wind.speed} m/s</p>
+        </div>
+      )}
     </div>
   )
 }

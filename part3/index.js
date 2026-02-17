@@ -13,6 +13,18 @@ app.get('/api/persons', (req, res) => {
     res.json(persons);
 });
 
+// ⭐ 3.3 — Get a single person by id
+app.get('/api/persons/:id', (req, res) => {
+    const id = req.params.id;
+    const person = persons.find(p => p.id === id);
+
+    if (person) {
+        res.json(person);
+    } else {
+        res.status(404).json({ error: "Person not found" });
+    }
+});
+
 // 3.2 — Info page
 app.get('/info', (req, res) => {
     const count = persons.length;
@@ -28,3 +40,4 @@ const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+

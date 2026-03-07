@@ -1,8 +1,14 @@
 import express from 'express'
 import morgan from 'morgan'
 import cors from 'cors'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 const app = express()
+
+// Needed for ES modules to get __dirname
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // Morgan token to log POST body
 morgan.token('body', (req) =>
@@ -13,6 +19,9 @@ morgan.token('body', (req) =>
 app.use(cors())
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
+// Serve React build
+app.use(express.static(path.join(__dirname, 'build')))
 
 // Initial data
 let persons = [
@@ -80,7 +89,11 @@ app.get('/info', (req, res) => {
   `)
 })
 
-/* IMPORTANT FIX FOR RENDER */
+// IMPORTANT FOR REACT ROUTING
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'))
+})
+
 const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {

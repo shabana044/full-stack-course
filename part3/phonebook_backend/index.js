@@ -5,7 +5,7 @@ import cors from 'cors'
 const app = express()
 
 // Morgan token to log POST body
-morgan.token('body', (req) => 
+morgan.token('body', (req) =>
   req.method === 'POST' ? JSON.stringify(req.body) : ''
 )
 
@@ -80,7 +80,9 @@ app.get('/info', (req, res) => {
   `)
 })
 
-const PORT = 3001
+/* IMPORTANT FIX FOR RENDER */
+const PORT = process.env.PORT || 3001
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

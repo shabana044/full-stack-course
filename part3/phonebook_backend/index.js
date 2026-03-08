@@ -25,11 +25,16 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.use(express.static(path.join(__dirname, 'build')))
 
 
-// GET all persons (FROM DATABASE)
+// GET all persons
 app.get('/api/persons', (req, res) => {
-  Person.find({}).then(persons => {
-    res.json(persons)
-  })
+  Person.find({})
+    .then(persons => {
+      res.json(persons)
+    })
+    .catch(error => {
+      console.error(error)
+      res.status(500).json({ error: 'failed to fetch persons' })
+    })
 })
 
 
@@ -43,6 +48,10 @@ app.get('/api/persons/:id', (req, res) => {
         res.status(404).end()
       }
     })
+    .catch(error => {
+      console.error(error)
+      res.status(400).json({ error: 'malformatted id' })
+    })
 })
 
 
@@ -51,6 +60,10 @@ app.delete('/api/persons/:id', (req, res) => {
   Person.findByIdAndDelete(req.params.id)
     .then(() => {
       res.status(204).end()
+    })
+    .catch(error => {
+      console.error(error)
+      res.status(400).json({ error: 'malformatted id' })
     })
 })
 
@@ -77,19 +90,22 @@ app.post('/api/persons', (req, res) => {
     .then(savedPerson => {
       res.json(savedPerson)
     })
+    .catch(error => {
+      console.error(error)
+      res.status(500).json({ error: 'failed to save person' })
+    })
 })
 
 
 // INFO route
 app.get('/info', (req, res) => {
-
-  Person.find({}).then(persons => {
-    res.send(`
-      <p>Phonebook has info for ${persons.length} people</p>
-      <p>${new Date()}</p>
-    `)
-  })
-
+  Person.find({})
+    .then(persons => {
+      res.send(`
+        <p>Phonebook has info for ${persons.length} people</p>
+        <p>${new Date()}</p>
+      `)
+    })
 })
 
 

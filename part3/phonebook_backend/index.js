@@ -11,15 +11,20 @@ const app = express()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+
 // Morgan token to log POST body
 morgan.token('body', (req) =>
   req.method === 'POST' ? JSON.stringify(req.body) : ''
 )
 
+
 // Middleware
 app.use(cors())
 app.use(express.json())
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms :body')
+)
+
 
 // Serve React build
 app.use(express.static(path.join(__dirname, 'build')))
@@ -85,6 +90,32 @@ app.post('/api/persons', (req, res, next) => {
 })
 
 
+// UPDATE person (Exercise 3.17)
+app.put('/api/persons/:id', (req, res, next) => {
+
+  const { name, number } = req.body
+
+  const person = {
+    name,
+    number
+  }
+
+  Person.findByIdAndUpdate(
+    req.params.id,
+    person,
+    {
+      new: true,
+      runValidators: true,
+      context: 'query'
+    }
+  )
+    .then(updatedPerson => {
+      res.json(updatedPerson)
+    })
+    .catch(error => next(error))
+})
+
+
 // INFO route
 app.get('/info', (req, res, next) => {
   Person.find({})
@@ -114,16 +145,21 @@ const errorHandler = (error, req, res, next) => {
     return res.status(400).send({ error: 'malformatted id' })
   }
 
+  if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
+  }
+
   next(error)
 }
 
 app.use(errorHandler)
 
 
-// IMPORTANT FOR REACT ROUTING
+// React Router fallback
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'))
 })
+
 
 const PORT = process.env.PORT || 3001
 

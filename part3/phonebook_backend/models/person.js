@@ -12,11 +12,30 @@ mongoose.connect(url)
     console.log('error connecting to MongoDB:', error.message)
   })
 
+
+// Phone number validation pattern
+const phoneRegex = /^\d{2,3}-\d+$/
+
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String
+  name: {
+    type: String,
+    required: [true, 'Name is required'],
+    minLength: [3, 'Name must be at least 3 characters long']
+  },
+  number: {
+    type: String,
+    required: [true, 'Number is required'],
+    validate: {
+      validator: function(v) {
+        return phoneRegex.test(v)
+      },
+      message: props => `${props.value} is not a valid phone number format (e.g. 12-123456)`
+    }
+  }
 })
 
+
+// Transform _id → id
 personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString()

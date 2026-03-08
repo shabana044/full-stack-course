@@ -26,20 +26,17 @@ app.use(express.static(path.join(__dirname, 'build')))
 
 
 // GET all persons
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person.find({})
     .then(persons => {
       res.json(persons)
     })
-    .catch(error => {
-      console.error(error)
-      res.status(500).json({ error: 'failed to fetch persons' })
-    })
+    .catch(error => next(error))
 })
 
 
 // GET one person
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
   Person.findById(req.params.id)
     .then(person => {
       if (person) {
@@ -48,28 +45,22 @@ app.get('/api/persons/:id', (req, res) => {
         res.status(404).end()
       }
     })
-    .catch(error => {
-      console.error(error)
-      res.status(400).json({ error: 'malformatted id' })
-    })
+    .catch(error => next(error))
 })
 
 
 // DELETE person
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
     .then(() => {
       res.status(204).end()
     })
-    .catch(error => {
-      console.error(error)
-      res.status(400).json({ error: 'malformatted id' })
-    })
+    .catch(error => next(error))
 })
 
 
 // ADD person
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
 
   const { name, number } = req.body
 
@@ -90,15 +81,12 @@ app.post('/api/persons', (req, res) => {
     .then(savedPerson => {
       res.json(savedPerson)
     })
-    .catch(error => {
-      console.error(error)
-      res.status(500).json({ error: 'failed to save person' })
-    })
+    .catch(error => next(error))
 })
 
 
 // INFO route
-app.get('/info', (req, res) => {
+app.get('/info', (req, res, next) => {
   Person.find({})
     .then(persons => {
       res.send(`
@@ -106,7 +94,30 @@ app.get('/info', (req, res) => {
         <p>${new Date()}</p>
       `)
     })
+    .catch(error => next(error))
 })
+
+
+// Unknown endpoint middleware
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+
+// Error handler middleware
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 
 // IMPORTANT FOR REACT ROUTING

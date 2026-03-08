@@ -90,7 +90,7 @@ app.post('/api/persons', (req, res, next) => {
 })
 
 
-// UPDATE person (Exercise 3.17)
+// UPDATE person
 app.put('/api/persons/:id', (req, res, next) => {
 
   const { name, number } = req.body
@@ -118,10 +118,10 @@ app.put('/api/persons/:id', (req, res, next) => {
 
 // INFO route
 app.get('/info', (req, res, next) => {
-  Person.find({})
-    .then(persons => {
+  Person.countDocuments({})
+    .then(count => {
       res.send(`
-        <p>Phonebook has info for ${persons.length} people</p>
+        <p>Phonebook has info for ${count} people</p>
         <p>${new Date()}</p>
       `)
     })
